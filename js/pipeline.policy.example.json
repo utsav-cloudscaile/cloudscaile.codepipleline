@@ -1,0 +1,41 @@
+{
+  "$comment": "Copy to pipeline.policy.json (gitignored) and adjust per environment. Loaded by src/config and merged over DEFAULT_POLICY via resolvePolicy().",
+  "$comment_edit_write": "Edit/Write moved out of requireApproval and into allowedTools: they're this pipeline's core capability (it exists to make prompt-driven code changes), not a platform-config-style side effect. requireApproval stays reserved for mutations to the live downstream platform (mcp__platform__update_config) and, previously, would have blocked every single run before it could do anything.",
+  "$comment_git_push": "mcp__git__git_push is intentionally in allowedTools, not requireApproval, even though it's an irreversible/outward-facing operation and the guardrail convention (see .claude/skills/add-guardrail-rule/SKILL.md) is to gate exactly that kind of tool behind approval. This is a deliberate exception for the trigger server's clone->edit->commit->push flow (src/server), decided explicitly rather than defaulted into — see CLAUDE.md.",
+  "permissionMode": "default",
+  "allowedTools": [
+    "Read",
+    "Grep",
+    "Glob",
+    "Edit",
+    "Write",
+    "Bash(npm *)",
+    "Bash(pnpm *)",
+    "Bash(yarn *)",
+    "Bash(node *)",
+    "mcp__platform__get_*",
+    "mcp__platform__list_*",
+    "mcp__git__git_status",
+    "mcp__git__git_clone",
+    "mcp__git__git_remote",
+    "mcp__git__git_pull",
+    "mcp__git__git_add",
+    "mcp__git__git_commit",
+    "mcp__git__git_push",
+    "mcp__git__git_diff",
+    "mcp__git__git_log",
+    "mcp__git__git_show"
+  ],
+  "deniedTools": [
+    "mcp__platform__delete_*",
+    "Bash(rm -rf*)",
+    "mcp__git__git_reset",
+    "mcp__git__git_clean",
+    "mcp__git__git_rebase",
+    "mcp__git__git_cherry_pick",
+    "mcp__git__git_merge",
+    "mcp__git__git_stash",
+    "mcp__git__git_worktree"
+  ],
+  "requireApproval": ["mcp__platform__update_config"]
+}

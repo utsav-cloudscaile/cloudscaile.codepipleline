@@ -1,0 +1,50 @@
+# Local infrastructure for code-pipeline.
+#
+#   docker compose up -d          -> MongoDB only (what `pnpm dev` expects at
+#                                    the MONGODB_URI default in .env.example)
+#   docker compose --profile app up --build
+#                                 -> MongoDB + the trigger server image
+#                                    (Dockerfile), app reachable on :8000
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    # Opt-in (docker compose --profile app up) so the default `up` gives you
+    # just the database for local `pnpm dev` against it.
+    profiles: ['app']
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      # Published port needs a non-loopback bind inside the container
+      # (see CLAUDE.md, "Docker").
+      HOST: 0.0.0.0
+      # Overrides the localhost URI from .env — inside the compose network the
+      # database is reachable by service name.
+      MONGODB_URI: mongodb://mongo:27017/code-pipeline
+    volumes:
+      # pipeline.policy.json is gitignored and .dockerignore'd (env-specific,
+      # not baked into the image) — bind-mount the local copy so loadPolicy()
+      # finds it at the PIPELINE_POLICY_PATH default (./pipeline.policy.json).
+      - ./pipeline.policy.json:/app/pipeline.policy.json:ro
+    ports:
+      - '8000:8000'
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

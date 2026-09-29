@@ -1,0 +1,7 @@
+{
+  "$comment": "fixture policy for loadPolicy tests",
+  "permissionMode": "acceptEdits",
+  "allowedTools": ["Read", "mcp__git__git_status"],
+  "deniedTools": ["mcp__git__git_reset"],
+  "requireApproval": ["mcp__platform__update_config"]
+}
