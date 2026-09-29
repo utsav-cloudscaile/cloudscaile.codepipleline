@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "tenant": "cloudscaile",
+  "extensionName": "codePipeline",
+  "description": "Agentic pipeline for prompt-driven codebase updates, with MCP-based configuration of downstream platforms and configurable guardrails.",
+  "displayName": "Code Pipeline",
+  "backend": {
+    "js": {
+      "database": ["mongodb"],
+      "resources": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "256Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      }
+    }
+  }
+}
